@@ -10,73 +10,76 @@
             text-align: center;
             background-color: #f3f4f6;
             color: #333;
-            padding: 50px;
+            padding: 20px; /* Reduced padding for mobile */
         }
         h1 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
+            font-size: 2em; /* Reduced font size for mobile */
+            margin-bottom: 15px; /* Reduced margin */
         }
         .countdown {
-            font-size: 2em;
+            font-size: 1.8em; /* Slightly smaller font size */
             font-weight: bold;
-            margin-top: 20px;
+            margin-top: 15px; /* Reduced margin */
         }
         .info-text {
-            font-size: 1.2em; /* Changed the font size for the info text */
-            margin-top: 10px; /* Added some space above the info text */
+            font-size: 1em; /* Adjusted font size for smaller screens */
+            margin-top: 10px; /* Space above the info text */
         }
         .date-text {
-            font-size: 1.2em; /* For styling the date text */
-            margin-top: 10px; /* Added some space above the date text */
+            font-size: 1em; /* For styling the date text */
+            margin-top: 10px; /* Space above the date text */
             color: #555; /* Slightly gray color for date text */
+        }
+        /* Media queries for even smaller devices */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8em; /* Reduce further on very small screens */
+            }
+            .countdown, .info-text, .date-text {
+                font-size: 1.5em; /* Make text larger for visibility */
+            }
         }
     </style>
 </head>
 <body>
 
 <h1>Campdown</h1>
-<p>Hvor lenge til neste camp?</p>
+<p>Hvor lenge til neste camp</p>
 <div class="countdown" id="countdown1"></div>
-<p class="date-text" id="date1"></p> <!-- Added this line for the first date -->
+<p class="date-text" id="date1"></p>
 <p class="info-text">Hvor lenge til neste stevne</p>
 <div class="countdown" id="countdown2"></div>
-<p class="date-text" id="date2"></p> <!-- Added this line for the second date -->
+<p class="date-text" id="date2"></p>
 
 <script>
     // Countdown target dates
     const countDownDate1 = new Date("December 28, 2024 20:00:00 GMT+0200").getTime();
-    const countDownDate2 = new Date("November 14, 2024 20:00:00 GMT+0200").getTime(); // Second countdown
+    const countDownDate2 = new Date("November 14, 2024 20:00:00 GMT+0200").getTime();
 
     // Function to start a countdown
     function startCountdown(targetDate, elementId, dateTextId) {
-        // Update the countdown every second
         const intervalId = setInterval(function() {
             const now = new Date().getTime();
             const distance = targetDate - now;
 
-            // Time calculations for days, hours, minutes, and seconds
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-            // Display the result in the specified element
             document.getElementById(elementId).innerHTML = days + " dager " + hours + " timer " + minutes + " minutter " + seconds + " sekunder ";
 
-            // Display the target date under the countdown
             const targetDateObj = new Date(targetDate);
             document.getElementById(dateTextId).innerHTML = targetDateObj.toLocaleDateString('no-NO', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-            // If the countdown is finished, display a message
             if (distance < 0) {
                 clearInterval(intervalId);
                 document.getElementById(elementId).innerHTML = "Camp er her!";
-                document.getElementById(dateTextId).innerHTML = ""; // Clear the date text when countdown ends
+                document.getElementById(dateTextId).innerHTML = "";
             }
         }, 1000);
     }
 
-    // Start both countdowns
     startCountdown(countDownDate1, "countdown1", "date1");
     startCountdown(countDownDate2, "countdown2", "date2");
 </script>
