@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campdown</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f3f4f6;
+            color: #333;
+            padding: 50px;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        #countdown {
+            font-size: 2em;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Campdown</h1>
+<p>Hvor lenge til neste camp?</p>
+<div id="countdown"></div>
+
+<script>
+    // Countdown target date (28th December 2024, 20:00 CEST)
+    const countDownDate = new Date("December 28, 2024 20:00:00 GMT+0200").getTime();
+
+    // Update the countdown every second
+    const x = setInterval(function() {
+        const now = new Date().getTime();
+        const distance = countDownDate - now;
+
+        // Time calculations for days, hours, minutes, and seconds
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // Display the result in the countdown element
+        document.getElementById("countdown").innerHTML = days + " dager " + hours + " timer " + minutes + " minutter " + seconds + " sekunder ";
+
+        // If the countdown is finished, display a message
+        if (distance < 0) {
+            clearInterval(x);
+            document.getElementById("countdown").innerHTML = "Camp er her!";
+        }
+    }, 1000);
+</script>
+
+</body>
+</html>
