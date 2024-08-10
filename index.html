@@ -20,6 +20,9 @@
             font-size: 1.8em; /* Slightly smaller font size */
             font-weight: bold;
             margin-top: 15px; /* Reduced margin */
+            padding: 10px;
+            border-radius: 5px;
+            color: white;
         }
         .info-text {
             font-size: 1em; /* Adjusted font size for smaller screens */
@@ -29,6 +32,13 @@
             font-size: 1em; /* For styling the date text */
             margin-top: 10px; /* Space above the date text */
             color: #555; /* Slightly gray color for date text */
+        }
+        /* Specific styles for different countdowns */
+        #countdown1 {
+            background-color: #4CAF50; /* Green background for the first countdown */
+        }
+        #countdown2 {
+            background-color: #FF5733; /* Red background for the second countdown */
         }
         /* Media queries for even smaller devices */
         @media (max-width: 480px) {
@@ -44,10 +54,14 @@
 <body>
 
 <h1>Campdown</h1>
-<p>Hvor lenge til neste camp</p>
+
+<!-- Countdown 1 -->
+<h2>Countdown til Camp</h2>
 <div class="countdown" id="countdown1"></div>
 <p class="date-text" id="date1"></p>
-<p class="info-text">Hvor lenge til neste stevne</p>
+
+<!-- Countdown 2 -->
+<h2>Countdown til Stevne</h2>
 <div class="countdown" id="countdown2"></div>
 <p class="date-text" id="date2"></p>
 
