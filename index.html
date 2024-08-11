@@ -9,95 +9,133 @@
             font-family: Arial, sans-serif;
             text-align: center;
             background-color: #2d2d2d;
-            color: white; /* Change the text color to white */
-            padding: 20px; /* Reduced padding for mobile */
+            color: white;
+            padding: 20px;
         }
         h1 {
-            font-size: 2em; /* Reduced font size for mobile */
-            margin-bottom: 15px; /* Reduced margin */
+            font-size: 2em;
+            margin-bottom: 15px;
         }
         .countdown {
-            font-size: 1.8em; /* Slightly smaller font size */
+            font-size: 1.8em;
             font-weight: bold;
-            margin-top: 15px; /* Reduced margin */
+            margin-top: 15px;
             padding: 10px;
             border-radius: 5px;
-            color: white; /* Already set to white */
+            color: white;
         }
         .info-text {
-            font-size: 1em; /* Adjusted font size for smaller screens */
-            margin-top: 10px; /* Space above the info text */
-            color: white; /* Ensure this text is also white */
+            font-size: 1em;
+            margin-top: 10px;
+            color: white;
         }
         .date-text {
-            font-size: 1em; /* For styling the date text */
-            margin-top: 10px; /* Space above the date text */
-            color: white; /* Change the date text color to white */
+            font-size: 1em;
+            margin-top: 10px;
+            color: white;
         }
-        /* Specific styles for different countdowns */
         #countdown1 {
-            background-color: #ea791b; /* Green background for the first countdown */
+            background-color: #ea791b;
         }
         #countdown2 {
-            background-color: #004741; /* Red background for the second countdown */
+            background-color: #004741;
         }
-        /* Media queries for even smaller devices */
         @media (max-width: 480px) {
-            h1 {
-                font-size: 1.8em; /* Reduce further on very small screens */
-            }
-            .countdown, .info-text, .date-text {
-                font-size: 1.5em; /* Make text larger for visibility */
-            }
+            h1 { font-size: 1.8em; }
+            .countdown, .info-text, .date-text { font-size: 1.5em; }
         }
     </style>
 </head>
 <body>
+    <h1>Campdown</h1>
+    <h2>Countdown til Camp</h2>
+    <div class="countdown" id="countdown1"></div>
+    <p class="date-text" id="date1"></p>
+    
+    <h2>Countdown til Stevne</h2>
+    <div class="countdown" id="countdown2"></div>
+    <p class="date-text" id="date2"></p>
+    
+    <script>
+        async function fetchEvents() {
+            const response = await fetch("https://widgets.brunstad.org/ical-f192a6b53a3f35cd/dkm/Brunstad-Portal.ics");
+            const icalText = await response.text();
+            return parseICal(icalText);
+        }
 
-<h1>Campdown</h1>
+        function parseICal(icalText) {
+            const events = [];
+            const lines = icalText.split('\n');
+            let event = {};
+            let inEvent = false;
 
-<!-- Countdown 1 -->
-<h2>Countdown til Camp</h2>
-<div class="countdown" id="countdown1"></div>
-<p class="date-text" id="date1"></p>
-
-<!-- Countdown 2 -->
-<h2>Countdown til Stevne</h2>
-<div class="countdown" id="countdown2"></div>
-<p class="date-text" id="date2"></p>
-
-<script>
-    // Countdown target dates
-    const countDownDate1 = new Date("December 28, 2024 20:00:00 GMT+0200").getTime();
-    const countDownDate2 = new Date("November 14, 2024 20:00:00 GMT+0200").getTime();
-
-    // Function to start a countdown
-    function startCountdown(targetDate, elementId, dateTextId) {
-        const intervalId = setInterval(function() {
-            const now = new Date().getTime();
-            const distance = targetDate - now;
-
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            document.getElementById(elementId).innerHTML = days + " dager " + hours + " timer " + minutes + " minutter " + seconds + " sekunder ";
-
-            const targetDateObj = new Date(targetDate);
-            document.getElementById(dateTextId).innerHTML = targetDateObj.toLocaleDateString('no-NO', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-
-            if (distance < 0) {
-                clearInterval(intervalId);
-                document.getElementById(elementId).innerHTML = "Camp er her!";
-                document.getElementById(dateTextId).innerHTML = "";
+            for (const line of lines) {
+                if (line.startsWith("BEGIN:VEVENT")) {
+                    inEvent = true;
+                    event = {};
+                } else if (line.startsWith("END:VEVENT")) {
+                    inEvent = false;
+                    if (event.summary && event.start) {
+                        events.push(event);
+                    }
+                } else if (inEvent) {
+                    if (line.startsWith("SUMMARY:")) {
+                        event.summary = line.substring("SUMMARY:".length).trim();
+                    } else if (line.startsWith("DTSTART:")) {
+                        const startDateStr = line.substring("DTSTART:".length).trim();
+                        event.start = new Date(startDateStr.replace(/(\d{8})T(\d{6})/, '$1T$2Z'));
+                    }
+                }
             }
-        }, 1000);
-    }
+            return events;
+        }
 
-    startCountdown(countDownDate1, "countdown1", "date1");
-    startCountdown(countDownDate2, "countdown2", "date2");
-</script>
+        function getNextEvent(events, keyword) {
+            const now = new Date().getTime();
+            const futureEvents = events.filter(event => event.summary.includes(keyword) && new Date(event.start).getTime() > now);
+            return futureEvents.sort((a, b) => new Date(a.start) - new Date(b.start))[0];
+        }
 
+        function startCountdown(targetEvent, elementId, dateTextId) {
+            const targetDate = new Date(targetEvent.start).getTime();
+            const intervalId = setInterval(function() {
+                const now = new Date().getTime();
+                const distance = targetDate - now;
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                document.getElementById(elementId).innerHTML = days + " dager " + hours + " timer " + minutes + " minutter " + seconds + " sekunder ";
+                const targetDateObj = new Date(targetDate);
+                document.getElementById(dateTextId).innerHTML = targetDateObj.toLocaleDateString('no-NO', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                
+                if (distance < 0) {
+                    clearInterval(intervalId);
+                    document.getElementById(elementId).innerHTML = "Event er her!";
+                    document.getElementById(dateTextId).innerHTML = "";
+                }
+            }, 1000);
+        }
+
+        async function initializeCountdowns() {
+            const events = await fetchEvents();
+            const nextCampEvent = getNextEvent(events, "Camp");
+            const nextStevneEvent = getNextEvent(events, "Stevne");
+
+            if (nextCampEvent) {
+                startCountdown(nextCampEvent, "countdown1", "date1");
+            } else {
+                document.getElementById("countdown1").innerHTML = "Ingen kommende Camp-arrangementer.";
+            }
+
+            if (nextStevneEvent) {
+                startCountdown(nextStevneEvent, "countdown2", "date2");
+            } else {
+                document.getElementById("countdown2").innerHTML = "Ingen kommende Stevne-arrangementer.";
+            }
+        }
+
+        initializeCountdowns();
+    </script>
 </body>
 </html>
