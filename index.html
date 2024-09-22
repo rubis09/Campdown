@@ -36,10 +36,13 @@
         }
         /* Specific styles for different countdowns */
         #countdown1 {
-            background-color: #ea791b; /* Green background for the first countdown */
+            background-color: #ea791b; /* Orange background for the first countdown */
         }
         #countdown2 {
-            background-color: #004741; /* Red background for the second countdown */
+            background-color: #004741; /* Dark background for the second countdown */
+        }
+        #countdown3 {
+            background-color: #5a3e2a; /* Brown background for the third countdown */
         }
         /* Media queries for even smaller devices */
         @media (max-width: 480px) {
@@ -66,10 +69,16 @@
 <div class="countdown" id="countdown2"></div>
 <p class="date-text" id="date2"></p>
 
+<!-- Countdown 3 -->
+<h2>Frivillighets helg</h2>
+<div class="countdown" id="countdown3"></div>
+<p class="date-text" id="date3"></p>
+
 <script>
     // Countdown target dates
     const countDownDate1 = new Date("December 28, 2024 20:00:00 GMT+0200").getTime();
     const countDownDate2 = new Date("October 04, 2024 15:00:00 GMT+0200").getTime();
+    const countDownDate3 = new Date("November 29, 2024 19:00:00 GMT+0200").getTime(); // New countdown date
 
     // Function to start a countdown
     function startCountdown(targetDate, elementId, dateTextId) {
@@ -97,6 +106,7 @@
 
     startCountdown(countDownDate1, "countdown1", "date1");
     startCountdown(countDownDate2, "countdown2", "date2");
+    startCountdown(countDownDate3, "countdown3", "date3"); // Start countdown for the new event
 </script>
 
 </body>
