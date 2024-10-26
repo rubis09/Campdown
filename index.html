@@ -52,17 +52,25 @@
 <div id="countdownsContainer"></div>
 
 <script>
+    let countdowns = {}; // Store countdowns to prevent duplicates.
+
     async function fetchCountdowns() {
         try {
             const response = await fetch('countdowns.txt');
             const text = await response.text();
             const lines = text.split('\n').filter(line => line.trim() !== '');
 
+            // Clear previous countdowns before loading new ones
+            document.getElementById('countdownsContainer').innerHTML = '';
+
             for (let i = 0; i < lines.length; i += 2) {
                 const name = lines[i].trim();
                 const dateString = lines[i + 1].trim();
 
-                createCountdown(name, dateString, i / 2 + 1); // index for countdown
+                // Check if countdown already exists
+                if (!countdowns[name]) {
+                    createCountdown(name, dateString, i / 2 + 1); // index for countdown
+                }
             }
         } catch (error) {
             console.error('Error fetching countdowns:', error);
@@ -70,6 +78,7 @@
     }
 
     function createCountdown(name, dateString, index) {
+        countdowns[name] = true; // Mark the countdown as created
         const countdownId = `countdown${index}`;
         const dateId = `date${index}`;
         
@@ -103,7 +112,11 @@
         }, 1000);
     }
 
+    // Initial fetch
     fetchCountdowns();
+
+    // Check the countdowns every 10 seconds
+    setInterval(fetchCountdowns, 10000); // 10000 milliseconds = 10 seconds
 
 </script>
 
