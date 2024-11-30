@@ -9,7 +9,7 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #2d2d2d;
+            background-color: #021029;
             color: white; /* Change the text color to white */
             padding: 20px; /* Reduced padding for mobile */
         }
@@ -79,7 +79,7 @@
     // Countdown target dates
     const countDownDate1 = new Date("December 28, 2024 20:00:00 GMT+0200").getTime();
     const countDownDate2 = new Date("December 6, 2024 20:00:00 GMT+0200").getTime();
-    const countDownDate3 = new Date("November 29, 2024 19:00:00 GMT+0200").getTime(); // New countdown date
+    const countDownDate3 = new Date("February 14, 2025 19:00:00 GMT+0200").getTime(); // New countdown date
 
     // Function to start a countdown
     function startCountdown(targetDate, elementId, dateTextId) {
@@ -99,7 +99,7 @@
 
             if (distance < 0) {
                 clearInterval(intervalId);
-                document.getElementById(elementId).innerHTML = "Camp er her!";
+                document.getElementById(elementId).innerHTML = "Event is here!";
                 document.getElementById(dateTextId).innerHTML = "";
             }
         }, 1000);
