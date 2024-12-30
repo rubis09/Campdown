@@ -16,6 +16,13 @@
         h1 {
             font-size: 2em;
             margin-bottom: 15px;
+            display: inline-block; /* Allows image to be inline with the text */
+        }
+        img.qr-code {
+            width: 50px; /* Set the desired width of the QR code */
+            height: auto; /* Maintain aspect ratio */
+            vertical-align: middle; /* Align the image vertically with text */
+            margin-left: 10px; /* Space between title and QR code */
         }
         .countdown {
             font-size: 1.8em;
@@ -60,6 +67,7 @@
 <body>
 
 <h1>Campdown.no</h1>
+<img class="qr-code" src="Untitled.png" alt="QR Code">
 
 <h2>2025 nyttårs nedtelling</h2>
 <div class="countdown" id="countdown1"></div>
