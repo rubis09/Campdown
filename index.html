@@ -1,119 +1,177 @@
 <!DOCTYPE html>
 <html lang="no">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campdown</title>
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #12160d;
-            color: white; /* Change the text color to white */
-            padding: 20px; /* Reduced padding for mobile */
-        }
-        h1 {
-            font-size: 2em; /* Reduced font size for mobile */
-            margin-bottom: 15px; /* Reduced margin */
-        }
-        .countdown {
-            font-size: 1.8em; /* Slightly smaller font size */
-            font-weight: bold;
-            margin-top: 15px; /* Reduced margin */
-            padding: 10px;
-            border-radius: 5px;
-            color: white; /* Already set to white */
-        }
-        .info-text {
-            font-size: 1em; /* Adjusted font size for smaller screens */
-            margin-top: 10px; /* Space above the info text */
-            color: white; /* Ensure this text is also white */
-        }
-        .date-text {
-            font-size: 1em; /* For styling the date text */
-            margin-top: 10px; /* Space above the date text */
-            color: white; /* Change the date text color to white */
-        }
-        /* Specific styles for different countdowns */
-        #countdown1 {
-            background-color: #e14521; /* Orange background for the first countdown */
-        }
-        #countdown2 {
-            background-color: #004741; /* Dark background for the second countdown */
-        }
-        #countdown3 {
-            background-color: #d400ff; /* Purple background for the third countdown */
-        }
-        /* Media queries for even smaller devices */
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1.8em; /* Reduce further on very small screens */
-            }
-            .countdown, .info-text, .date-text {
-                font-size: 1.5em; /* Make text larger for visibility */
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Campdown</title>
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #12160d;
+      color: white;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 15px;
+    }
+    .countdown-group {
+      margin-bottom: 30px;
+      padding: 10px;
+      border: 2px solid #444;
+      border-radius: 5px;
+    }
+    .group-title {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    .countdown {
+      font-size: 1.8em;
+      font-weight: bold;
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #e14521;
+    }
+    .date-text {
+      font-size: 1em;
+      margin-top: 10px;
+    }
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.8em;
+      }
+      .countdown, .date-text, .group-title {
+        font-size: 1.5em;
+      }
+    }
+  </style>
 </head>
 <body>
 
 <h1>Campdown</h1>
-
-<!-- Countdown 1 -->
-<h2>Påskecamp</h2>
-<div class="countdown" id="countdown1"></div>
-<p class="date-text" id="date1"></p>
-
-<!-- Countdown 2 -->
-<h2>Påskestevnet 1</h2>
-<div class="countdown" id="countdown2"></div>
-<p class="date-text" id="date2"></p>
-
-<!-- Countdown 3 -->
-<h2>Frivillighetshelg - Juni</h2>
-<div class="countdown" id="countdown3"></div>
-<p class="date-text" id="date3"></p>
+<div id="countdowns-container"></div>
 
 <script>
-    // Countdown target dates
-    const countDownDate1 = new Date("April 12, 2025 11:00:00 GMT+0100").getTime();
-    const countDownDate2 = new Date("April 18, 2025 19:00:00 GMT+0100").getTime();
-    const countDownDate3 = new Date("June 14, 2025 08:00:00 GMT+0100").getTime(); // New countdown date
-
-    // Function to start a countdown
-    function startCountdown(targetDate, elementId, dateTextId) {
-        const intervalId = setInterval(function() {
-            const now = new Date().getTime();
-            const distance = targetDate - now;
-
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            document.getElementById(elementId).innerHTML = days + " dager " + hours + " timer " + minutes + " minutter " + seconds + " sekunder ";
-
-            const targetDateObj = new Date(targetDate);
-            document.getElementById(dateTextId).innerHTML = targetDateObj.toLocaleDateString('no-NO', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-
-            if (distance < 0) {
-                clearInterval(intervalId);
-                document.getElementById(elementId).innerHTML = "Event is here!";
-                document.getElementById(dateTextId).innerHTML = "";
-            }
-        }, 1000);
+  // Function to fetch and parse the dates file
+  async function loadCountdowns() {
+    try {
+      const response = await fetch('dates.txt');
+      const text = await response.text();
+      // Split into groups using a line with only "-" as separator
+      const groupsRaw = text.split(/\r?\n-\r?\n/);
+      const groups = groupsRaw.map(block => {
+        // Remove any stray empty lines then split by line
+        const lines = block.split(/\r?\n/).map(l => l.trim()).filter(l => l);
+        const events = [];
+        // Assume pairs: name, then date (with date format: "YYYY-MM-DD HH:MM")
+        for (let i = 0; i < lines.length; i += 2) {
+          const name = lines[i];
+          const dateStr = lines[i+1];
+          const dt = parseDateString(dateStr);
+          if (dt) {
+            events.push({ name, date: dt });
+          } else {
+            console.error(`Invalid date format for "${name}": ${dateStr}`);
+          }
+        }
+        return events;
+      });
+      return groups;
+    } catch (error) {
+      console.error("Error loading dates.txt:", error);
+      return [];
     }
+  }
 
-    startCountdown(countDownDate1, "countdown1", "date1");
-    startCountdown(countDownDate2, "countdown2", "date2");
-    startCountdown(countDownDate3, "countdown3", "date3"); // Start countdown for the new event
+  // Parse a date in "YYYY-MM-DD HH:MM" format to a Date object.
+  function parseDateString(dateStr) {
+    // Date string expected as "YYYY-MM-DD HH:MM"
+    const [datePart, timePart] = dateStr.split(" ");
+    if (!datePart || !timePart) return null;
+    const [year, month, day] = datePart.split("-").map(Number);
+    const [hour, minute] = timePart.split(":").map(Number);
+    // Create a Date object (note: months are 0-indexed)
+    return new Date(year, month - 1, day, hour, minute);
+  }
+
+  // For each group, find the next event (the soonest date in the future)
+  function getNextEventForGroup(events) {
+    const now = new Date();
+    // Filter events for those in the future, then return the one with the earliest date.
+    const futureEvents = events.filter(e => e.date > now);
+    if (!futureEvents.length) return null;
+    futureEvents.sort((a, b) => a.date - b.date);
+    return futureEvents[0];
+  }
+
+  // Start a countdown for a given target date, updating the specified container
+  function startCountdown(targetDate, countdownEl, dateTextEl) {
+    const updateCountdown = () => {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+      if (distance < 0) {
+        countdownEl.innerHTML = "Event is here!";
+        dateTextEl.innerHTML = "";
+        return;
+      }
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      countdownEl.innerHTML = `${days} dager ${hours} timer ${minutes} minutter ${seconds} sekunder `;
+      // Also show the target date in a readable format using the locale "no-NO"
+      dateTextEl.innerHTML = new Date(targetDate).toLocaleString('no-NO', {
+        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+    };
+    updateCountdown();
+    return setInterval(updateCountdown, 1000);
+  }
+
+  // Main function to set up the countdown groups on the page
+  async function setupCountdowns() {
+    const groups = await loadCountdowns();
+    const container = document.getElementById("countdowns-container");
+    groups.forEach((events, index) => {
+      const nextEvent = getNextEventForGroup(events);
+      if (!nextEvent) return; // Skip group if no upcoming events
+
+      // Combine all event names in this group into a title
+      const groupTitle = events.map(e => e.name).join(" / ");
+
+      // Create HTML elements for the group
+      const groupDiv = document.createElement("div");
+      groupDiv.className = "countdown-group";
+      // Title
+      const h2 = document.createElement("h2");
+      h2.className = "group-title";
+      h2.textContent = groupTitle;
+      groupDiv.appendChild(h2);
+      // Countdown display
+      const countdownDiv = document.createElement("div");
+      countdownDiv.className = "countdown";
+      // Give it a unique ID if needed later
+      countdownDiv.id = `countdown${index + 1}`;
+      groupDiv.appendChild(countdownDiv);
+      // Date text below countdown
+      const dateP = document.createElement("p");
+      dateP.className = "date-text";
+      dateP.id = `date${index + 1}`;
+      groupDiv.appendChild(dateP);
+      container.appendChild(groupDiv);
+
+      // Start the countdown timer for this group
+      startCountdown(nextEvent.date.getTime(), countdownDiv, dateP);
+    });
+  }
+
+  // Start the setup when the page loads
+  window.addEventListener("DOMContentLoaded", setupCountdowns);
 </script>
-
-<!-- Telegram Bot Link -->
-<div class="info-text" style="margin-top: 30px;">
-    Telegram Bot: <a href="http://telegram.me/Campdownbot" style="color: #ea791b; text-decoration: underline;">Click here</a>
-</div>
 
 </body>
 </html>
