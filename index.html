@@ -1,39 +1,40 @@
 <!DOCTYPE html>
 <html lang="no">
 <head>
-    <meta charset="UTF-8">
-    <title>Campdown</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #12160d;
-            color: white;
-            text-align: center;
-            padding: 20px;
-        }
-        h1 {
-            font-size: 2em;
-            margin-bottom: 20px;
-        }
-        .countdown-container {
-            margin-bottom: 30px;
-        }
-        .countdown {
-            font-size: 1.5em;
-            font-weight: bold;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px auto;
-            max-width: 300px;
-        }
-        .date-text {
-            font-size: 1em;
-            margin-top: 5px;
-        }
-        .info-text {
-            margin-top: 30px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Campdown</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #12160d;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+    .countdown-container {
+      margin-bottom: 30px;
+    }
+    .countdown {
+      font-size: 1.5em;
+      font-weight: bold;
+      padding: 10px;
+      border-radius: 5px;
+      margin: 10px auto;
+      max-width: 300px;
+      color: white;
+    }
+    .date-text {
+      font-size: 1em;
+      margin-top: 5px;
+    }
+    .info-text {
+      margin-top: 30px;
+    }
+  </style>
 </head>
 <body>
 
@@ -45,48 +46,87 @@
 </div>
 
 <script>
-    async function loadCountdowns() {
-        const res = await fetch('dates.txt');
-        const text = await res.text();
-        const groups = text.trim().split('-').map(g => g.trim()).filter(Boolean);
-        const container = document.getElementById('countdowns');
+  async function loadCountdowns() {
+    try {
+      // Use a relative path for GitHub Pages.
+      const res = await fetch('./dates.txt');
+      if (!res.ok) throw new Error(`Failed to fetch dates.txt: ${res.status}`);
+      const text = await res.text();
+      
+      // Split file into groups (each group separated by a line with a single "-")
+      const groups = text.trim().split(/\r?\n-\r?\n/).map(g => g.trim()).filter(Boolean);
+      const container = document.getElementById('countdowns');
+      
+      groups.forEach((group, index) => {
+        const lines = group.split('\n').map(l => l.trim()).filter(Boolean);
+        const entries = [];
+        // Each event uses three lines: name, date, color.
+        for (let i = 0; i < lines.length; i += 3) {
+          const name = lines[i];
+          const date = new Date(lines[i + 1]);
+          const color = lines[i + 2];
+          if (!isNaN(date)) {
+            entries.push({ name, date, color });
+          } else {
+            console.error(`Invalid date for "${name}": ${lines[i + 1]}`);
+          }
+        }
 
-        groups.forEach((group, index) => {
-            const lines = group.split('\n').map(l => l.trim()).filter(Boolean);
-            const entries = [];
+        // Get next upcoming event (if there is one)
+        const now = new Date();
+        const upcoming = entries.filter(e => e.date > now).sort((a, b) => a.date - b.date);
+        if (!upcoming.length) {
+          console.warn(`No upcoming events for group #${index + 1}`);
+          return;
+        }
+        const next = upcoming[0];
 
-            for (let i = 0; i < lines.length; i += 3) {
-                const name = lines[i];
-                const date = new Date(lines[i + 1]);
-                const color = lines[i + 2];
-                if (!isNaN(date)) {
-                    entries.push({ name, date, color });
-                }
-            }
+        // Create container elements
+        const div = document.createElement('div');
+        div.className = 'countdown-container';
+        div.innerHTML = `
+          <h2>${next.name}</h2>
+          <div class="countdown" id="countdown${index}" style="background-color: ${next.color};"></div>
+          <p class="date-text" id="date${index}"></p>
+        `;
+        container.appendChild(div);
 
-            // Find next upcoming entry
-            const now = new Date();
-            const next = entries.filter(e => e.date > now).sort((a, b) => a.date - b.date)[0];
-            if (!next) return;
-
-            // Create DOM
-            const div = document.createElement('div');
-            div.className = 'countdown-container';
-            div.innerHTML = `
-                <h2>${next.name}</h2>
-                <div class="countdown" id="countdown${index}" style="background-color: ${next.color}"></div>
-                <p class="date-text" id="date${index}"></p>
-            `;
-            container.appendChild(div);
-
-            startCountdown(next.date, `countdown${index}`, `date${index}`);
-        });
+        startCountdown(next.date, `countdown${index}`, `date${index}`);
+      });
+    } catch (err) {
+      console.error('Error loading countdowns:', err);
     }
+  }
 
-    function startCountdown(targetDate, elementId, dateTextId) {
-        const interval = setInterval(() => {
-            const now = new Date().getTime();
-            const distance = targetDate - now;
+  function startCountdown(targetDate, elementId, dateTextId) {
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
 
-            if (distance <= 0) {
-                clearInterval
+      if (distance <= 0) {
+        clearInterval(interval);
+        document.getElementById(elementId).innerText = "Event is here!";
+        document.getElementById(dateTextId).innerText = "";
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      document.getElementById(elementId).innerText =
+        `${days} dager ${hours} timer ${minutes} minutter ${seconds} sekunder`;
+
+      // Display the target date in the "no-NO" locale
+      document.getElementById(dateTextId).innerText =
+        targetDate.toLocaleString('no-NO');
+    }, 1000);
+  }
+
+  // Initialize countdowns when page is loaded
+  window.addEventListener("DOMContentLoaded", loadCountdowns);
+</script>
+
+</body>
+</html>
