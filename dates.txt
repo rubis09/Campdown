@@ -1,13 +1,14 @@
 Påskecamp
-2025-04-12 11:00
-Natt til fredag
-2025-04-11 23:59
+April 12, 2025 11:00:00 GMT+0100
+#e14521
+Påskecamp 2
+April 14, 2025 10:00:00 GMT+0100
+#f27d0c
 -
-Påskestevnet
-2025-04-18 19:00
+Stevne
+April 18, 2025 19:00:00 GMT+0100
+#004741
 -
-Frivillighetshelg - Juni
-2025-06-14 08:00
-Sommerleir
-2025-06-15 10:00
--
+Frivillighetshelg
+June 14, 2025 08:00:00 GMT+0100
+#d400ff
