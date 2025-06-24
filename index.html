@@ -1,103 +1,100 @@
 <!DOCTYPE html>
 <html lang="no">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campdown</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #2d2d2d;
-            color: white; /* Change the text color to white */
-            padding: 20px; /* Reduced padding for mobile */
-        }
-        h1 {
-            font-size: 2em; /* Reduced font size for mobile */
-            margin-bottom: 15px; /* Reduced margin */
-        }
-        .countdown {
-            font-size: 1.8em; /* Slightly smaller font size */
-            font-weight: bold;
-            margin-top: 15px; /* Reduced margin */
-            padding: 10px;
-            border-radius: 5px;
-            color: white; /* Already set to white */
-        }
-        .info-text {
-            font-size: 1em; /* Adjusted font size for smaller screens */
-            margin-top: 10px; /* Space above the info text */
-            color: white; /* Ensure this text is also white */
-        }
-        .date-text {
-            font-size: 1em; /* For styling the date text */
-            margin-top: 10px; /* Space above the date text */
-            color: white; /* Change the date text color to white */
-        }
-        /* Specific styles for different countdowns */
-        #countdown1 {
-            background-color: #ea791b; /* Green background for the first countdown */
-        }
-        #countdown2 {
-            background-color: #004741; /* Red background for the second countdown */
-        }
-        /* Media queries for even smaller devices */
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1.8em; /* Reduce further on very small screens */
-            }
-            .countdown, .info-text, .date-text {
-                font-size: 1.5em; /* Make text larger for visibility */
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bestill Vær (på tull)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f1f1;
+      padding: 20px;
+      text-align: center;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-weight: bold;
+    }
+    .receipt {
+      background: #eee;
+      padding: 20px;
+      margin-top: 20px;
+      text-align: left;
+      font-family: 'Courier New', monospace;
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <h1> Bestill Vær</h1>
+    <p>Fyll inn informasjon for å bestille.</p>
 
-<h1>Campdown</h1>
+    <form id="weatherForm">
+      <input type="text" id="location" placeholder="Sted (f.eks. Oslo)" required>
+      <input type="date" id="date" required>
+      <input type="time" id="startTime" required>
+      <input type="time" id="endTime" required>
+      <select id="weatherType" required>
+        <option value="">Velg værtype</option>
+        <option>Sol</option>
+        <option>Regn</option>
+        <option>Snø</option>
+        <option>Torden</option>
+        <option>Skyet</option>
+        <option>Storm</option>
+        <option>Hagl</option>
+        <option>Magisk tåke</option>
+      </select>
+      <button type="submit">Generer kvittering</button>
+    </form>
 
-<!-- Countdown 1 -->
-<h2>Nyttårs camp</h2>
-<div class="countdown" id="countdown1"></div>
-<p class="date-text" id="date1"></p>
+    <div id="receipt" class="receipt" style="display: none;"></div>
+  </div>
 
-<!-- Countdown 2 -->
-<h2>Høststevne 1 - Festhelg</h2>
-<div class="countdown" id="countdown2"></div>
-<p class="date-text" id="date2"></p>
+  <script>
+    document.getElementById('weatherForm').addEventListener('submit', function(e) {
+      e.preventDefault();
 
-<script>
-    // Countdown target dates
-    const countDownDate1 = new Date("December 28, 2024 20:00:00 GMT+0200").getTime();
-    const countDownDate2 = new Date("October 04, 2024 15:00:00 GMT+0200").getTime();
+      const location = document.getElementById('location').value;
+      const date = document.getElementById('date').value;
+      const start = document.getElementById('startTime').value;
+      const end = document.getElementById('endTime').value;
+      const weather = document.getElementById('weatherType').value;
 
-    // Function to start a countdown
-    function startCountdown(targetDate, elementId, dateTextId) {
-        const intervalId = setInterval(function() {
-            const now = new Date().getTime();
-            const distance = targetDate - now;
+      const receipt = `
+        =============================<br>
+        ✨  KVITERING: Værbestill.no  ✨<br>
+        =============================<br>
+        Sted: ${location}<br>
+        Dato: ${date}<br>
+        Tid: ${start} - ${end}<br>
+        Bestilt vær: ${weather}<br>
+        Pris: 0 kr (vær ikke inkludert 😄)<br>
+        Ordrenummer:-${Math.floor(Math.random() * 90000 + 10000)}<br>
+        Takk for at du bestiller fra Værbestill AS!<br>
+        =============================<br>
+      `;
 
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            document.getElementById(elementId).innerHTML = days + " dager " + hours + " timer " + minutes + " minutter " + seconds + " sekunder ";
-
-            const targetDateObj = new Date(targetDate);
-            document.getElementById(dateTextId).innerHTML = targetDateObj.toLocaleDateString('no-NO', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-
-            if (distance < 0) {
-                clearInterval(intervalId);
-                document.getElementById(elementId).innerHTML = "Camp er her!";
-                document.getElementById(dateTextId).innerHTML = "";
-            }
-        }, 1000);
-    }
-
-    startCountdown(countDownDate1, "countdown1", "date1");
-    startCountdown(countDownDate2, "countdown2", "date2");
-</script>
-
+      const receiptEl = document.getElementById('receipt');
+      receiptEl.innerHTML = receipt;
+      receiptEl.style.display = 'block';
+    });
+  </script>
 </body>
 </html>
