@@ -7,63 +7,66 @@
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <style>
         body {
+            margin: 0;
+            padding: 20px;
             font-family: Arial, sans-serif;
-            text-align: center;
             background-color: #021029;
             color: white;
-            padding: 20px;
+            text-align: center;
         }
         h1 {
             font-size: 2em;
             margin-bottom: 15px;
         }
-        .countdown {
-            font-size: 1.8em;
-            font-weight: bold;
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 5px;
-            color: white;
+        h2 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
         }
-        .info-text {
-            font-size: 1em;
-            margin-top: 10px;
-            color: white;
-        }
-        .date-text {
-            font-size: 1em;
-            margin-top: 10px;
-            color: white;
-        }
-        /* Specific style for the first countdown */
+        /* Countdown box fills screen with 25px gap */
         #countdown1 {
             background-color: #6A7B8C;
+            width: calc(100vw - 50px);
+            height: calc(100vh - 50px);
+            margin: 25px auto;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        #timer {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        #date1 {
+            font-size: 1.2em;
+            margin-top: 10px;
         }
         @media (max-width: 480px) {
-            h1 {
-                font-size: 1.8em;
-            }
-            .countdown, .info-text, .date-text {
-                font-size: 1.5em;
-            }
+            h1 { font-size: 1.5em; }
+            h2 { font-size: 1.2em; }
+            #timer { font-size: 1.5em; }
+            #date1 { font-size: 1em; }
         }
     </style>
 </head>
 <body>
 
 <h1>Campdown</h1>
-
-<!-- Countdown 1 -->
 <h2>2026 Countdown</h2>
-<div class="countdown" id="countdown1"></div>
-<p class="date-text" id="date1"></p>
+
+<div id="countdown1">
+    <div id="timer"></div>
+    <p id="date1"></p>
+</div>
 
 <script>
-    // Countdown target date
     const countDownDate1 = new Date("January 1, 2026 00:00:00 GMT+0100").getTime();
 
-    // Function to start a countdown
-    function startCountdown(targetDate, elementId, dateTextId) {
+    function startCountdown(targetDate, timerId, dateTextId) {
         const intervalId = setInterval(function() {
             const now = new Date().getTime();
             const distance = targetDate - now;
@@ -73,7 +76,7 @@
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-            document.getElementById(elementId).innerHTML =
+            document.getElementById(timerId).innerHTML =
                 days + " dager " + hours + " timer " + minutes + " minutter " + seconds + " sekunder ";
 
             const targetDateObj = new Date(targetDate);
@@ -88,13 +91,13 @@
 
             if (distance < 0) {
                 clearInterval(intervalId);
-                document.getElementById(elementId).innerHTML = "Event is here!";
+                document.getElementById(timerId).innerHTML = "Event is here!";
                 document.getElementById(dateTextId).innerHTML = "";
             }
         }, 1000);
     }
 
-    startCountdown(countDownDate1, "countdown1", "date1");
+    startCountdown(countDownDate1, "timer", "date1");
 </script>
 
 </body>
