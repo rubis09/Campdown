@@ -29,7 +29,7 @@
         /* Countdown box fyller resten av skjermen */
         #countdown1 {
             flex: 1; /* tar all ledig plass under titlene */
-            margin: 0 25px 0 25px; /* 25px gap på sidene */
+            margin: 0 0px 0 0px; /* 25px gap på sidene */
             background-color: #6A7B8C;
             border-radius: 10px;
             display: flex;
@@ -95,7 +95,7 @@
 
                 if (distance < 0) {
                     clearInterval(intervalId);
-                    document.getElementById(timerId).innerHTML = "Event is here!";
+                    document.getElementById(timerId).innerHTML = "Happy new year!";
                     document.getElementById(dateTextId).innerHTML = "";
                 }
             }, 1000);
